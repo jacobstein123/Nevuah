@@ -5,6 +5,8 @@
   "private": true,
   "dependencies": {
     "express": "4.x",
-    "body-parser": "latest"
+    "body-parser": "latest",
+    "underscore": "latest",
+    "mongojs": "latest"
   }
 }
