@@ -40,20 +40,22 @@ classes.find({className:"judaics 101"},{"students":1, _id:0},function(err,docs){
 
 
 		var studentClasses = [];
-		
+		var ranking = 0;
 
 		console.log(studentClasses);
 		for (i=0; i<students.length-1; i++){
 			getClasses(students[i],false,addingUpAssignments);
 		}
 		
-		getAssignmentRanking = function(_class_,isLast){
-			if (!isLast){
+		getAssignmentRanking = function(i,isLast){
+			if (!isLast){ //WARNING: DOESN"T TAKE CLASS INTO ACCOUNT, JUST CYCLES
 				calendar.find({},function(err,docs){
-					console.log("assignment: "+docs[0].assignment);
-					console.log("dff: "+difficultyList[docs[0].assignment]);
-					ranking += difficultyList[docs[0].assignment];
-					console.log("rank: "+ranking);
+					console.log("assignment: "+docs[i].assignment);
+					var difficulty = difficultyList[docs[i].assignment];
+					console.log("diff: "+difficulty);
+					ranking += difficulty
+					console.log("ranking: "+ranking);
+					
 				});
 			}
 			
@@ -63,12 +65,12 @@ classes.find({className:"judaics 101"},{"students":1, _id:0},function(err,docs){
 			studentClasses.push(docs[0].classes);
 			console.log("THE FINAL LIST: "+studentClasses);
 
-			var ranking = 0;
+			
 			for (i=0; i<studentClasses.length-1; i++){
-				getAssignmentRanking(studentClasses[i],false);
+				getAssignmentRanking(i,false);
 			}
 
-			getAssignmentRanking(studentClasses[studentClasses.length-1],true);
+			getAssignmentRanking(studentClasses.length-1,true);
 
 		};
 		getClasses(students[students.length-1],true,addingUpAssignments);
