@@ -1,0 +1,23 @@
+<div class="container">
+	<h1>Sign up your school!</h1>
+	<form role="form" ng-submit="addSchool()">
+		<div class="form-group">
+			<label for="school">School Name</label>
+			<input type="text" ng-model="data.school" placeholder="School name" id="school" class="form-control"/>
+		</div>
+		<div class="form-group">
+			<label for="admin">Admin Name</label>
+			<input type="text" ng-model="data.admin" placeholder="Admin name" id="admin" class="form-control"/>
+		</div>
+		<div class="form-group">
+			<label for="email">Admin Email</label>
+			<input type="text" ng-model="data.email" id="email" placeholder="Email" class="form-control"/>
+		</div>
+		<div class="form-group">
+			<label for="password">Admin Password</label>
+			<input type="password" ng-model="data.password" id="password" placeholder="Password" class="form-control"/>
+		</div>
+		<button type="submit" class="btn btn-primary">Submit</button>
+	</form>
+	<p></p> 
+</div>
