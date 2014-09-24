@@ -3,6 +3,18 @@ var _ = require("underscore")
 var bodyParser = require('body-parser');
 var mongojs = require("mongojs");
 var db = mongojs("nevuah");
+
+function ensureUnique(collection, ke, value, callback) {
+    var query = {};
+    query[ke] = value
+    collection.count(query, function(err, count) {
+        if (count > 0 || err) {
+            callback(false);
+        } else {
+            callback(true);
+        }
+    });
+}
 module.exports = function(app) {
     // Root routing
     app.use(bodyParser.json());
@@ -21,39 +33,52 @@ module.exports = function(app) {
                 res.send("You forgot to provide the " + param + " param");
                 break;
             }
-        }
-        //everything is in if it is here
+        } //everything is in if it is here
         var school_id = _.uniqueId("school_");
         var school = db.collection("school");
-        school.insert({
-            "name": given_params.school,
-            "id": school_id
-        })
-        //create uuid for school
-        var user = db.collection("user");
-        var adminID = _.uniqueId("admin_")
-        user.insert({
-            "name": given_params.admin,
-            "id": adminID,
-            "type": 0,
-            "schoolId": school_id,
-            "adminEmail": given_params.admin,
-            "passwd": given_params.passwd
-        });
-        //create authkey for the admin
-        var authkey = db.collection("authkey");
-        var key = _.uniqueId("auth_");
-        var expires = new Date();
-        expires.setDate(expires.getDate() + 1);
-        authkey.insert({
-            user: adminID,
-            authkey: key,
-            expires: expires
-        });
-        res.send({
-            "authkey": key,
-            "user": adminID,
-            "schoolId": school_id
+        ensureUnique(school, "name", given_params.school, function(good) {
+            if (good) {
+                school.insert({
+                    "name": given_params.school,
+                    "id": school_id
+                })
+                //create uuid for school
+                var user = db.collection("user");
+                ensureUnique(user, "adminEmail", given_params.admin, function(good) {
+                    if (good) {
+                        var adminID = _.uniqueId("admin_");
+                        user.insert({
+                            "name": given_params.admin,
+                            "id": adminID,
+                            "type": 0,
+                            "schoolId": school_id,
+                            "adminEmail": given_params.admin,
+                            "passwd": given_params.passwd
+                        });
+                        //create authkey for the admin
+                        var authkey = db.collection("authkey");
+                        var key = _.uniqueId("auth_");
+                        var expires = new Date();
+                        expires.setDate(expires.getDate() + 1);
+                        authkey.insert({
+                            user: adminID,
+                            authkey: key,
+                            expires: expires
+                        });
+                        res.send({
+                            "authkey": key,
+                            "user": adminID,
+                            "schoolId": school_id
+                        });
+                    } else {
+                       res.send("This email has already been used");
+                       res.status(404);
+                    }
+                });
+            } else {
+                res.send("This school has already been signed up");
+                res.status(404);
+            }
         });
     });
     app.post("/createteacher", function(req, res) {
